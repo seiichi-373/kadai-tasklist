@@ -1,6 +1,12 @@
 class TasksController < ApplicationController
+  include TasksHelper
+  
   def index
+    if logged_in?
     @tasks = Task.all
+    else
+    redirect_to login_path
+    end
   end
   
   def show
