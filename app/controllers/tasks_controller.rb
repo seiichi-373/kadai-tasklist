@@ -10,11 +10,19 @@ class TasksController < ApplicationController
   end
   
   def show
+    if logged_in?
     @task = Task.find(params[:id])
+    else
+    redirect_to login_path
+    end
   end
   
   def new
+    if logged_in?
     @task = Task.new
+    else
+    redirect_to login_path
+    end
   end
   
   def create
@@ -40,7 +48,6 @@ class TasksController < ApplicationController
   end
   
   def update
-    if logged_in?
     @task = Task.find(params[:id])
     
       if @task.update(task_params)
@@ -50,9 +57,6 @@ class TasksController < ApplicationController
         flash.now[:danger] = 'Task は更新されませんでした'
         render :edit
       end
-    else
-    redirect_to login_path
-    end
   end
   
   def destroy
