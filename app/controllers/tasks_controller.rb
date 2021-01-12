@@ -3,8 +3,7 @@ class TasksController < ApplicationController
   
   def index
     if logged_in?
-    @task = current_user.tasks.build
-    @tasks = current_user.tasks.order(id: :desc)
+    @tasks = current_user.tasks
     else
     redirect_to login_path
     end
@@ -33,27 +32,39 @@ class TasksController < ApplicationController
   end
   
   def edit
+    if logged_in?
     @task = Task.find(params[:id])
+    else
+    redirect_to login_path
+    end
   end
   
   def update
+    if logged_in?
     @task = Task.find(params[:id])
     
-    if @task.update(task_params)
-      flash[:success] = 'Task は正常に更新されました'
-      redirect_to @task
+      if @task.update(task_params)
+        flash[:success] = 'Task は正常に更新されました'
+        redirect_to @task
+      else
+        flash.now[:danger] = 'Task は更新されませんでした'
+        render :edit
+      end
     else
-      flash.now[:danger] = 'Task は更新されませんでした'
-      render :edit
+    redirect_to login_path
     end
   end
   
   def destroy
+    if logged_in?
     @task = Task.find(params[:id])
     @task.destroy
     
     flash[:success] = 'Task は正常に削除されました'
     redirect_to tasks_url
+    else
+    redirect_to login_path
+    end
   end
   
   private
