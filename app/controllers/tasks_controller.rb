@@ -1,28 +1,17 @@
 class TasksController < ApplicationController
-  include TasksHelper
+  before_action :require_user_logged_in
+  before_action :correct_user, only: [:edit, :show, :update, :destroy]
   
   def index
-    if logged_in?
     @tasks = current_user.tasks
-    else
-    redirect_to login_path
-    end
   end
   
   def show
-    if logged_in?
     @task = Task.find(params[:id])
-    else
-    redirect_to login_path
-    end
   end
   
   def new
-    if logged_in?
     @task = Task.new
-    else
-    redirect_to login_path
-    end
   end
   
   def create
@@ -40,11 +29,7 @@ class TasksController < ApplicationController
   end
   
   def edit
-    if logged_in?
     @task = Task.find(params[:id])
-    else
-    redirect_to login_path
-    end
   end
   
   def update
@@ -60,15 +45,11 @@ class TasksController < ApplicationController
   end
   
   def destroy
-    if logged_in?
     @task = Task.find(params[:id])
     @task.destroy
     
     flash[:success] = 'Task は正常に削除されました'
     redirect_to tasks_url
-    else
-    redirect_to login_path
-    end
   end
   
   private
@@ -76,5 +57,12 @@ class TasksController < ApplicationController
   # strong parameter
   def task_params
     params.require(:task).permit(:content, :status)
+  end
+  
+  def correct_user
+    @task = current_user.tasks.find_by(id: params[:id])
+    unless @task
+      redirect_to root_url
+    end
   end
 end
